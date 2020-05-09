@@ -1,22 +1,38 @@
 version: '3'
+volumes:
+  postgres_data:
+  public_data:
+  tmp_data:
+  log_data:
 services:
-  nginx:
+  app:
+    build:
+      context: .
+      dockerfile: ./Docker/app/Dockerfile
+    command: bundle exec puma -C config/puma.rb
     volumes:
-      - $PWD/nginx:/usr/share/nginx/
-    build: containers/nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - web
-  db:
-    image: postgres
-    volumes:
-      - ./tmp/db:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: 'postgres'
-  web:
-    build: .
-    volumes:
-      - /diary_app/log
+      - .:/diary_app
+      - public_data:/diary_app/public
+      - tmp_data:/diary_app/tmp
+      - log_data:/diary_app/log
     depends_on:
       - db
+  db:
+    build:
+        context: .
+        dockerfile: ./Docker/db/Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    build:
+      context: .
+      dockerfile: ./Docker/web/Dockerfile
+    volumes:
+      - public_data:/diary_app/public
+      - tmp_data:/diary_app/tmp
+    ports:
+      - 80:80
+    depends_on:
+      - app

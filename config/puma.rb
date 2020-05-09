@@ -13,7 +13,7 @@ port        ENV.fetch("PORT") { 3000 }
 
 # Specifies the `environment` that Puma will run in.
 #
-environment ENV.fetch("RAILS_ENV") { "development" }
+environment ENV.fetch("RAILS_ENV") { "production" }
 
 # Specifies the `pidfile` that Puma will use.
 
@@ -37,4 +37,6 @@ environment ENV.fetch("RAILS_ENV") { "development" }
 plugin :tmp_restart
 
 app_root = File.expand_path("../..", __FILE__)
-bind "unix://#{diary_app_root}/tmp/sockets/puma.sock"
+bind "unix://#{app_root}/tmp/sockets/puma.sock"
+
+stdout_redirect "#{app_root}/log/puma.stdout.log", "#{app_root}/log/puma.stderr.log", true
